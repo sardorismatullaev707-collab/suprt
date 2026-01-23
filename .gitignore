@@ -1,0 +1,7 @@
+node_modules/
+baileys_auth/
+logs.jsonl
+.env
+dist/
+*.log
+.DS_Store

@@ -1,0 +1,6 @@
+2026/01/19-15:46:07.316 fc19 Reusing MANIFEST /Users/apple/VS projects/suprt local/.wwebjs_auth/session/Default/Local Storage/leveldb/MANIFEST-000001
+2026/01/19-15:46:07.318 fc19 Recovering log #4
+2026/01/19-15:46:07.319 fc19 Reusing old log /Users/apple/VS projects/suprt local/.wwebjs_auth/session/Default/Local Storage/leveldb/000004.log 
+2026/01/19-15:48:07.834 fc1d Level-0 table #8: started
+2026/01/19-15:48:07.839 fc1d Level-0 table #8: 17341 bytes OK
+2026/01/19-15:48:07.842 fc1d Delete type=0 #4
