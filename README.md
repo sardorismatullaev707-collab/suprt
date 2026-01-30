@@ -100,9 +100,15 @@ GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour Key\n-----
 
 ## 🚀 Запуск
 
+### Локально (для разработки):
 ```bash
 npx tsx telegram-bot.ts
 ```
+
+### На сервере (Production):
+См. **[DEPLOY.md](DEPLOY.md)** - инструкция по деплою на Render.com, Railway, Heroku и другие платформы.
+
+⚠️ **Важно:** Telegram бот использует **Background Worker**, не Web Service!
 
 ## 📂 Структура проекта
 
