@@ -3,11 +3,11 @@ import { JWT } from 'google-auth-library';
 import dotenv from 'dotenv';
 dotenv.config();
 
-export async function loadKnowledgeBase() {
+export async function loadKnowledgeBase(): Promise<Array<{ question: string; answer: string }>> {
   try {
     const SHEET_ID = process.env.GOOGLE_SHEET_ID;
     if (!SHEET_ID) {
-      console.error('[Sheets] GOOGLE_SHEET_ID not set');
+      console.error('[✗] GOOGLE_SHEET_ID not set in .env');
       return [];
     }
 
@@ -15,7 +15,7 @@ export async function loadKnowledgeBase() {
     const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
     if (!serviceAccountEmail || !privateKey) {
-      console.error('[Sheets] Service account credentials not set');
+      console.error('[✗] Service account credentials not set in .env');
       return [];
     }
 
@@ -28,59 +28,86 @@ export async function loadKnowledgeBase() {
     const doc = new GoogleSpreadsheet(SHEET_ID, jwt);
     await doc.loadInfo();
 
-    // Ищем лист с названием "knowledge"
     const sheet = doc.sheetsByTitle['knowledge'];
     if (!sheet) {
-      console.error('[Sheets] Sheet "knowledge" not found. Available sheets:', Object.keys(doc.sheetsByTitle));
+      console.error('[✗] Sheet "knowledge" not found. Available:', Object.keys(doc.sheetsByTitle));
       return [];
     }
 
     const rows = await sheet.getRows();
-    console.log(`[Sheets] Found ${rows.length} rows in "knowledge" sheet`);
+    console.log(`[✓] Loaded ${rows.length} rows from Google Sheets`);
 
-    // DEBUG: Выведем первую строку, чтобы увидеть названия колонок
-    if (rows.length > 0) {
-      console.log('[DEBUG] First row:', rows[0]);
-    }
+    const knowledgeBase = rows
+      .map((row: any) => {
+        const question = row.get('Question')?.toString().trim() || '';
+        const answer = row.get('Answer')?.toString().trim() || '';
+        return { question, answer };
+      })
+      .filter(qa => qa.question && qa.answer);
 
-    return rows.map((row: any) => {
-      // Используем метод get() для получения значений по названию колонки
-      const question = row.get('Question')?.toString().trim() || '';
-      const answer = row.get('Answer')?.toString().trim() || '';
-      return { question, answer };
-    }).filter(qa => qa.question && qa.answer);
-  } catch (err) {
-    console.error('[Sheets Error]', err.message);
+    console.log(`[✓] Processed ${knowledgeBase.length} Q&A pairs`);
+    return knowledgeBase;
+  } catch (err: any) {
+    console.error('[✗] Google Sheets error:', err.message);
     return [];
   }
 }
 
-export function getBestAnswer(question: string, knowledgeBase: any[]) {
-  const q = question.toLowerCase().trim();
+export function getBestAnswer(
+  userQuestion: string,
+  knowledgeBase: Array<{ question: string; answer: string }>
+): { question: string; answer: string } | null {
+  const q = userQuestion.toLowerCase().trim();
   
-  // Точный поиск - слова из вопроса в ответе
-  const exactMatch = knowledgeBase.find(qa => {
-    const qLower = qa.question.toLowerCase();
-    const words = q.split(/\s+/).filter(w => w.length > 2);
-    return words.some(word => qLower.includes(word));
-  });
+  console.log(`[🔍] Searching: "${q}"`);
+  
+  // Exact match
+  const exactMatch = knowledgeBase.find(qa => 
+    qa.question.toLowerCase() === q
+  );
   
   if (exactMatch) {
-    console.log(`[SHEETS] Found exact match: "${exactMatch.question}"`);
+    console.log(`[✓] Exact match: "${exactMatch.question}"`);
     return exactMatch;
   }
   
-  // Нечёткий поиск - если нет точного совпадения
-  const fuzzyMatch = knowledgeBase.find(qa => 
-    qa.question.toLowerCase().includes(q) || 
-    q.includes(qa.question.toLowerCase())
-  );
+  // Keyword matching with scoring
+  const words = q.split(/\s+/).filter(w => w.length > 2);
+  console.log(`[🔍] Keywords: [${words.join(', ')}]`);
   
-  if (fuzzyMatch) {
-    console.log(`[SHEETS] Found fuzzy match: "${fuzzyMatch.question}"`);
-    return fuzzyMatch;
+  let matches = knowledgeBase.map(qa => {
+    const qLower = qa.question.toLowerCase();
+    const matchedWords = words.filter(word => qLower.includes(word));
+    const score = matchedWords.length / words.length;
+    
+    if (matchedWords.length > 0) {
+      console.log(`  → "${qa.question}" - ${Math.round(score * 100)}% match (${matchedWords.length}/${words.length} words)`);
+    }
+    
+    return { qa, score, matchedWords: matchedWords.length };
+  }).filter(item => item.matchedWords > 0);
+  
+  // Sort by score (highest first)
+  matches.sort((a, b) => b.score - a.score);
+  
+  // Return best match if score is reasonable
+  const best = matches[0];
+  if (best && best.score >= 0.4) {
+    console.log(`[✓] Best match (${Math.round(best.score * 100)}%): "${best.qa.question}"`);
+    return best.qa;
   }
   
-  console.log(`[SHEETS] No match found for: "${question}"`);
+  // Try partial match as last resort
+  const partialMatch = knowledgeBase.find(qa => {
+    const qLower = qa.question.toLowerCase();
+    return qLower.includes(q) || q.includes(qLower);
+  });
+  
+  if (partialMatch) {
+    console.log(`[✓] Partial match: "${partialMatch.question}"`);
+    return partialMatch;
+  }
+  
+  console.log('[!] No match found');
   return null;
 }

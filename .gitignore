@@ -1,7 +1,9 @@
 node_modules/
 baileys_auth/
+src/baileys_auth/
 logs.jsonl
 .env
 dist/
 *.log
 .DS_Store
+qr.png

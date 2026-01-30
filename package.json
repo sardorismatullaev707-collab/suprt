@@ -1,22 +1,21 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "tsx main.ts",
-    "bot": "tsx baileys-bot.ts",
-    "start": "npm run bot"
+    "start": "tsx telegram-bot.ts",
+    "dev": "tsx telegram-bot.ts"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^7.0.0-rc.9",
+    "@google/generative-ai": "^0.21.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
     "google-spreadsheet": "^5.0.2",
-    "qrcode-terminal": "^0.12.0",
-    "socket.io": "^4.8.3"
+    "node-telegram-bot-api": "^0.66.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
     "@types/node": "^25.0.9",
+    "@types/node-telegram-bot-api": "^0.64.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
