@@ -1,0 +1,20 @@
+# Documentation files (not needed for deployment)
+*.md
+!README.md
+
+# Local files
+.env
+.env.local
+baileys_auth/
+
+# Development
+.vscode/
+.idea/
+
+# Logs
+logs.jsonl
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

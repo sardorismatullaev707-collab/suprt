@@ -1,0 +1,20 @@
+services:
+  # Telegram Bot as Background Worker (не нужен HTTP порт)
+  - type: worker
+    name: suprt-telegram-bot
+    env: node
+    buildCommand: npm install
+    startCommand: npx tsx telegram-bot.ts
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_EMAIL
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+        sync: false
