@@ -153,7 +153,8 @@ export async function askAI(
               content: question
             }
           ],
-          temperature: 0.7,
+          // Booking path should be deterministic to avoid malformed BOOK: outputs
+          temperature: 0.2,
           max_tokens: 1000
         })
       });
@@ -251,7 +252,9 @@ ${context}`
             content: question
           }
         ],
-        temperature: 0.7,
+        // For regular Q&A: allow more creative, helpful phrasing when KB lacks exact answers.
+        // Temperature is higher so AI can propose reasonable, labeled suggestions.
+        temperature: 0.85,
         max_tokens: 500
       })
     });
