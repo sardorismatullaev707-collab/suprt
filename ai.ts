@@ -103,8 +103,8 @@ export async function askAI(
           messages: [
             {
               role: 'system',
-              content: `You are a friendly assistant for Amity Global Institute that helps with information AND booking appointments.
-
+              content: `You are a friendly assistant for Suprt.org that helps with information AND booking appointments.
+tou should know what are you doing your task is being an Administrator
 ⚠️ CRITICAL - CURRENT DATE INFORMATION:
 Today's date is: ${currentDateReadable}
 ISO format: ${currentDate}
